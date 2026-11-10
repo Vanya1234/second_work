@@ -1,0 +1,26 @@
+--- a/app_vulnerable.py
++++ b/app_vulnerable.py
+@@ -12,9 +12,9 @@
+             "INSERT INTO students VALUES (?, ?)",
+             [("alice", "DEMO-101"), ("bob", "DEMO-102"), ("carol", "DEMO-103")],
+         )
+-        # Имя подставляется прямо в SQL-запрос.
+-        query = f"SELECT name, group_name FROM students WHERE name = '{name}'"
+-        return database.execute(query).fetchall()
++        # Имя передаётся отдельным параметром.
++        query = "SELECT name, group_name FROM students WHERE name = ?"
++        return database.execute(query, (name,)).fetchall()
+     finally:
+         database.close()
+ 
+@@ -71,8 +71,8 @@
+ 
+     if path == "/hello":
+         text = parameters.get("text", [""])[0]
+-        # Текст выводится без экранирования.
+-        body = f"<p>Привет, {text}!</p>"
++        # Спецсимволы HTML выводятся как текст.
++        body = f"<p>Привет, {escape(text)}!</p>"
+         return respond(start_response, body)
+ 
+     return respond(start_response, "<p>Страница не найдена.</p>", "404 Not Found")
